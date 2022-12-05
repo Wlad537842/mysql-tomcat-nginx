@@ -1,0 +1,103 @@
+version: "3.8"
+services:
+  db:
+    image: mysql:8.0
+    networks:
+      - default
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G
+    environment:
+      MYSQL_ROOT_PASSWORD: "password"
+      MYSQL_DATABASE: "test_db"
+      MYSQL_USER: "test_db_user"
+      MYSQL_PASSWORD: "123"
+    volumes:
+      - "./db:/docker-entrypoint-initdb.d"
+
+
+  tomcat1:
+    build:
+      context: ./tomcat/
+      dockerfile: ./Dockerfile
+    networks:
+      - default
+    depends_on:
+      - db
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1G
+    environment:
+      VIRTUAL_PORT: 8080
+      JDBC_URL: "jdbc:mysql://db:3306/test_db?connectTimeout=0&amp;socketTimeout=0&amp;autoReconnect=true&amp;useSSL=false"
+      JDBC_USER: "test_db_user"
+      JDBC_PASS: "123"
+    volumes:
+      - "./tomcat/webapps:/usr/local/tomcat/webapps"
+
+  tomcat2:
+    build:
+      context: ./tomcat/
+      dockerfile: ./Dockerfile
+    networks:
+      - default
+    depends_on:
+      - db
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1G
+    environment:
+      VIRTUAL_PORT: 8080
+      JDBC_URL: "jdbc:mysql://db:3306/test_db?connectTimeout=0&amp;socketTimeout=0&amp;autoReconnect=true&amp;useSSL=false"
+      JDBC_USER: "test_db_user"
+      JDBC_PASS: "123"
+    volumes:
+      - "./tomcat/webapps:/usr/local/tomcat/webapps"
+
+  tomcat3:
+    build:
+      context: ./tomcat/
+      dockerfile: ./Dockerfile
+    networks:
+      - default
+    depends_on:
+      - db
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1G
+    environment:
+      VIRTUAL_PORT: 8080
+      JDBC_URL: "jdbc:mysql://db:3306/test_db?connectTimeout=0&amp;socketTimeout=0&amp;autoReconnect=true&amp;useSSL=false"
+      JDBC_USER: "test_db_user"
+      JDBC_PASS: "123"
+    volumes:
+      - "./tomcat/webapps:/usr/local/tomcat/webapps"
+
+
+  nginx:
+    build:
+      context: ./nginx/
+      dockerfile: ./Dockerfile
+    ports:
+      - "80:80"
+    networks:
+      - default
+    depends_on:
+      - tomcat1
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1G
+
+networks:
+  default:
+
